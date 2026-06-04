@@ -12,4 +12,9 @@
     <PackageReference Include="System.Data.OleDb" Version="10.0.8" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CarService.BLL\CarService.BLL.csproj" />
+    <ProjectReference Include="..\CarService.DAL\CarService.DAL.csproj" />
+  </ItemGroup>
+
 </Project>
