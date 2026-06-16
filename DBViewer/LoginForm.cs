@@ -4,7 +4,7 @@ namespace DBViewer
 {
     /// <summary>
     /// Форма авторизации. Принимает логин и пароль,
-    /// передаёт их в AuthService и открывает главную форму при успехе.
+    /// передаёт их в AuthService и открывает главное меню при успехе.
     /// </summary>
     public partial class LoginForm : Form
     {
@@ -14,12 +14,42 @@ namespace DBViewer
         {
             this.authService = authService ?? throw new ArgumentNullException(nameof(authService));
             InitializeComponent();
+            InitializeFullScreen();
+        }
+
+        /// <summary>
+        /// Настраивает форму на открытие на весь экран.
+        /// </summary>
+        private void InitializeFullScreen()
+        {
+            this.WindowState = FormWindowState.Maximized;
+            this.StartPosition = FormStartPosition.CenterScreen;
+            CenterForm();
+        }
+
+        /// <summary>
+        /// Центрирует панель с формой.
+        /// </summary>
+        private void CenterForm()
+        {
+            panelForm.Location = new System.Drawing.Point(
+                (panelMain.ClientSize.Width - panelForm.Width) / 2,
+                (panelMain.ClientSize.Height - panelForm.Height) / 2
+            );
         }
 
         // Обработчик кнопки "Войти"
-        private void buttonLogin_Click(object sender, EventArgs e)
+        private void buttonLogin_Click(object sender, System.EventArgs e)
         {
-            string login    = textBoxLogin.Text.Trim();
+            PerformLogin();
+        }
+
+        /// <summary>
+        /// Выполняет попытку входа.
+        /// </summary>
+        private void PerformLogin()
+        {
+            string login = textBoxLogin.Text.Trim();
             string password = textBoxPassword.Text;
 
             if (string.IsNullOrWhiteSpace(login) || string.IsNullOrWhiteSpace(password))
@@ -32,7 +62,7 @@ namespace DBViewer
         }
 
         /// <summary>
-        /// Выполняет попытку входа и открывает главную форму при успехе.
+        /// Выполняет попытку входа и открывает главное меню при успехе.
         /// </summary>
         private void TryLogin(string login, string password)
         {
@@ -48,24 +78,57 @@ namespace DBViewer
                 {
                     labelError.Text = "Неверный логин или пароль.";
                     textBoxPassword.Clear();
+                    textBoxPassword.Focus();
                 }
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                MessageBox.Show($"Ошибка при входе: {ex.Message}", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                labelError.Text = $"Ошибка: {ex.Message}";
             }
         }
 
         /// <summary>
-        /// Скрывает форму авторизации и открывает главную форму.
+        /// Скрывает форму авторизации и открывает главное меню.
         /// </summary>
         private void OpenMainForm()
         {
             Hide();
-            var mainForm = new MainForm(authService);
-            mainForm.FormClosed += (s, e) => Close(); // закрыть приложение если закрыли главную форму
-            mainForm.Show();
+            var startMenuForm = new StartMenuForm(authService);
+            startMenuForm.Show();
+        }
+
+        /// <summary>
+        /// Обработка нажатия Enter в поле логина.
+        /// </summary>
+        private void textBoxLogin_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
+        {
+            if (e.KeyCode == System.Windows.Forms.Keys.Enter)
+            {
+                textBoxPassword.Focus();
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+        }
+
+        /// <summary>
+        /// Обработка нажатия Enter в поле пароля.
+        /// </summary>
+        private void textBoxPassword_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
+        {
+            if (e.KeyCode == System.Windows.Forms.Keys.Enter)
+            {
+                PerformLogin();
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+        }
+
+        /// <summary>
+        /// Обработка изменения размера окна.
+        /// </summary>
+        private void LoginForm_Resize(object sender, System.EventArgs e)
+        {
+            CenterForm();
         }
     }
 }

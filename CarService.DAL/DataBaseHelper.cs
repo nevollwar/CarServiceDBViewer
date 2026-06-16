@@ -233,7 +233,6 @@ namespace CarService.DAL
             ExecuteNonQuery(query, parameters, "DeleteRow");
         }
 
-        // ──────────────────────────────────────────────
         // Служебные методы выполнения запросов
 
         /// <summary>

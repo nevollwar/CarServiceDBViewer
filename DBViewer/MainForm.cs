@@ -26,9 +26,16 @@ namespace DBViewer
             "Использованные_запчасти", "Запчасти", "Бригады"
         };
 
-        public MainForm(AuthService authService)
+        private readonly StartMenuForm? startMenuForm;
+
+        public MainForm(AuthService authService) : this(authService, null)
+        {
+        }
+
+        public MainForm(AuthService authService, StartMenuForm? startMenuForm)
         {
             this.authService  = authService  ?? throw new ArgumentNullException(nameof(authService));
+            this.startMenuForm = startMenuForm;
 
             var db = new DataBaseHelper(DbPathHelper.GetPath());
             tableService = new TableService(db, authService);
@@ -37,6 +44,13 @@ namespace DBViewer
             InitializeUserInfo();
             InitializeTables();
             UpdateButtonAccess();
+            
+            // Добавляем обработчик закрытия формы
+            this.FormClosing += new FormClosingEventHandler(MainForm_FormClosing);
+            
+            // Открываем на весь экран
+            this.WindowState = FormWindowState.Maximized;
+            this.StartPosition = FormStartPosition.CenterScreen;
         }
 
         // ──────────────────────────────────────────────
@@ -359,8 +373,43 @@ namespace DBViewer
 
         private void buttonLogout_Click(object sender, EventArgs e)
         {
-            authService.Logout();
-            Close();
+            // Выход из формы базы данных - возврат в главное меню
+            var result = MessageBox.Show(
+                "Выйти в главное меню?",
+                "Выход",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question
+            );
+
+            if (result == DialogResult.Yes)
+            {
+                ReturnToStartMenu();
+            }
+        }
+
+        // Обработчик закрытия формы
+        private void MainForm_FormClosing(object? sender, FormClosingEventArgs e)
+        {
+            // При закрытии формы (крестик) тоже возвращаем в главное меню
+            // Если пользователь не отменил закрытие
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true; // Отменяем закрытие
+                ReturnToStartMenu();
+            }
+        }
+
+        /// <summary>
+        /// Возвращает пользователя в главное меню.
+        /// </summary>
+        private void ReturnToStartMenu()
+        {
+            // Показываем главное меню, если оно было передано
+            if (startMenuForm != null)
+            {
+                startMenuForm.Show();
+                startMenuForm.WindowState = FormWindowState.Maximized;
+            }
         }
     }
 }
