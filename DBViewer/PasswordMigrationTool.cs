@@ -1,9 +1,10 @@
+using CarService.BLL.Services;
+using CarService.DAL;
 using System;
 using System.Data;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
-using CarService.DAL;
 
 namespace DBViewer
 {
@@ -18,6 +19,7 @@ namespace DBViewer
         {
             InitializeComponent();
             db = new DataBaseHelper(DbPathHelper.GetPath());
+            this.Load += new System.EventHandler(this.PasswordMigrationTool_Load);
         }
 
         private void PasswordMigrationTool_Load(object sender, EventArgs e)
@@ -38,7 +40,7 @@ namespace DBViewer
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки пользователей: {ex.Message}", "Ошибка", 
+                MessageBox.Show($"Ошибка загрузки пользователей: {ex.Message}", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -83,7 +85,7 @@ namespace DBViewer
                     {
                         string? login = row["Login"]?.ToString();
                         string? password = row["Password"]?.ToString();
-                        
+
                         // Пропускаем пустые пароли или логины
                         if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
                             continue;
@@ -123,7 +125,7 @@ namespace DBViewer
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка миграции: {ex.Message}", "Ошибка", 
+                MessageBox.Show($"Ошибка миграции: {ex.Message}", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -184,7 +186,7 @@ namespace DBViewer
             try
             {
                 string hashedPassword = ComputeSha256Hash(password);
-                
+
                 db.UpdateRow("Users", new System.Collections.Generic.Dictionary<string, object>
                 {
                     { "Password", hashedPassword }
@@ -197,7 +199,7 @@ namespace DBViewer
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", 
+                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -212,6 +214,121 @@ namespace DBViewer
             {
                 LoadUserList(); // Обновляем список
             }
+        }
+
+        private void buttonDeleteUser_Click(object sender, EventArgs e)
+        {
+            if (dataGridViewUsers.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Выберите пользователя из таблицы для удаления.", "Внимание",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var row = dataGridViewUsers.SelectedRows[0];
+            var userId = row.Cells["ID"].Value;
+            var login = row.Cells["Login"].Value?.ToString();
+
+            // Защита от удаления главного администратора (чтобы случайно не заблокировать систему)
+            if (login?.ToLower() == "admin")
+            {
+                MessageBox.Show("Удаление главного администратора 'admin' запрещено системой безопасности.",
+                    "Доступ запрещен", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                return;
+            }
+
+            var result = MessageBox.Show(
+                $"Вы уверены, что хотите навсегда удалить учетную запись пользователя '{login}'?",
+                "Подтверждение удаления",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning
+            );
+
+            if (result == DialogResult.Yes)
+            {
+                try
+                {
+                    db.DeleteRow("Users", "ID", userId);
+                    MessageBox.Show($"Пользователь '{login}' успешно удален из системы.", "Успех",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    LoadUserList(); // Обновляем таблицу
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при удалении пользователя: {ex.Message}", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void buttonResetPassword_Click(object sender, EventArgs e)
+        {
+            if (dataGridViewUsers.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Выберите пользователя для изменения пароля.", "Внимание",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var row = dataGridViewUsers.SelectedRows[0];
+            var userId = row.Cells["ID"].Value;
+            var login = row.Cells["Login"].Value?.ToString();
+
+            // Используем встроенный в .NET InputBox для ввода нового пароля
+            string newPassword = Microsoft.VisualBasic.Interaction.InputBox(
+                $"Введите новый пароль для пользователя '{login}':",
+                "Сброс пароля администратором",
+                ""
+            );
+
+            // Если администратор нажал "Отмена" или оставил поле пустым — ничего не делаем
+            if (string.IsNullOrWhiteSpace(newPassword))
+                return;
+
+            // Проверяем надежность введенного пароля
+            if (!AuthService.IsPasswordStrong(newPassword))
+            {
+                MessageBox.Show(
+                    "Пароль слишком простой!\n\n" +
+                    "Требования:\n" +
+                    "• Минимум 8 символов\n" +
+                    "• Хотя бы одна цифра\n" +
+                    "• Хотя бы одна заглавная буква\n" +
+                    "• Хотя бы одна строчная буква",
+                    "Слабый пароль",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                );
+                return;
+            }
+
+            try
+            {
+                // Хешируем новый пароль
+                string hashedPassword = AuthService.HashPassword(newPassword);
+
+                // Записываем хэш в базу данных
+                db.UpdateRow("Users", new Dictionary<string, object>
+        {
+            { "Password", hashedPassword }
+        }, "ID", userId);
+
+                MessageBox.Show($"Пароль для пользователя '{login}' успешно обновлен на новый безопасный хеш.", "Успех",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                LoadUserList(); // Обновляем таблицу
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при обновлении пароля: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void buttonClose_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

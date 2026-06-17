@@ -51,50 +51,58 @@ namespace DBViewer
         /// </summary>
         private void buttonChangePassword_Click(object sender, EventArgs e)
         {
-            if (!ValidateInputs())
-                return;
-
-            string oldPassword = textBoxOldPassword.Text;
-            string newPassword = textBoxNewPassword.Text;
-
-            if (!VerifyOldPassword(oldPassword))
+            try
             {
-                MessageBox.Show("Неверный старый пароль.", "Ошибка", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-                textBoxOldPassword.Clear();
-                textBoxOldPassword.Focus();
-                return;
+                if (!ValidateInputs())
+                    return;
+
+                string oldPassword = textBoxOldPassword.Text;
+                string newPassword = textBoxNewPassword.Text;
+
+                if (!VerifyOldPassword(oldPassword))
+                {
+                    MessageBox.Show("Неверный старый пароль.", "Ошибка", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    textBoxOldPassword.Clear();
+                    textBoxOldPassword.Focus();
+                    return;
+                }
+
+                if (!AuthService.IsPasswordStrong(newPassword))
+                {
+                    MessageBox.Show(
+                        "Новый пароль недостаточно сложный.\n\n" +
+                        "Пароль должен:\n" +
+                        "• Содержать не менее 8 символов\n" +
+                        "• Иметь хотя бы одну цифру\n" +
+                        "• Иметь хотя бы одну строчную букву\n" +
+                        "• Иметь хотя бы одну заглавную букву",
+                        "Слабый пароль",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning
+                    );
+                    textBoxNewPassword.Clear();
+                    textBoxConfirmPassword.Clear();
+                    textBoxNewPassword.Focus();
+                    return;
+                }
+
+                if (ChangePassword(newPassword))
+                {
+                    MessageBox.Show("Пароль успешно изменен!", "Успех", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+                else
+                {
+                    MessageBox.Show("Ошибка при изменении пароля.", "Ошибка", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
-
-            if (!AuthService.IsPasswordStrong(newPassword))
+            catch (Exception ex)
             {
-                MessageBox.Show(
-                    "Новый пароль недостаточно сложный.\n\n" +
-                    "Пароль должен:\n" +
-                    "• Содержать не менее 8 символов\n" +
-                    "• Иметь хотя бы одну цифру\n" +
-                    "• Иметь хотя бы одну строчную букву\n" +
-                    "• Иметь хотя бы одну заглавную букву",
-                    "Слабый пароль",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning
-                );
-                textBoxNewPassword.Clear();
-                textBoxConfirmPassword.Clear();
-                textBoxNewPassword.Focus();
-                return;
-            }
-
-            if (ChangePassword(newPassword))
-            {
-                MessageBox.Show("Пароль успешно изменен!", "Успех", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                this.DialogResult = DialogResult.OK;
-                this.Close();
-            }
-            else
-            {
-                MessageBox.Show("Ошибка при изменении пароля.", "Ошибка", 
+                MessageBox.Show($"Неожиданная ошибка при смене пароля: {ex.Message}", "Критическая ошибка", 
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

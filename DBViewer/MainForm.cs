@@ -13,7 +13,7 @@ namespace DBViewer
     /// </summary>
     public partial class MainForm : Form
     {
-        private readonly AuthService  authService;
+        private readonly AuthService authService;
         private readonly TableService tableService;
 
         // Имя текущей открытой таблицы
@@ -34,7 +34,7 @@ namespace DBViewer
 
         public MainForm(AuthService authService, StartMenuForm? startMenuForm)
         {
-            this.authService  = authService  ?? throw new ArgumentNullException(nameof(authService));
+            this.authService = authService ?? throw new ArgumentNullException(nameof(authService));
             this.startMenuForm = startMenuForm;
 
             var db = new DataBaseHelper(DbPathHelper.GetPath());
@@ -44,18 +44,16 @@ namespace DBViewer
             InitializeUserInfo();
             InitializeTables();
             UpdateButtonAccess();
-            
+
             // Добавляем обработчик закрытия формы
             this.FormClosing += new FormClosingEventHandler(MainForm_FormClosing);
-            
+
             // Открываем на весь экран
             this.WindowState = FormWindowState.Maximized;
             this.StartPosition = FormStartPosition.CenterScreen;
         }
 
-        // ──────────────────────────────────────────────
-        // ИНИЦИАЛИЗАЦИЯ
-        // ──────────────────────────────────────────────
+        // Инициализация
 
         /// <summary>
         /// Выводит имя и роль текущего пользователя в шапку.
@@ -88,20 +86,18 @@ namespace DBViewer
         }
 
         /// <summary>
-        /// Включает/выключает кнопки Add/Edit/Delete в зависимости от роли.
+        /// Включает/выключает кнопки Добавить/Изменить/Удалить в зависимости от роли.
         /// Наблюдатель видит кнопки, но они неактивны.
         /// </summary>
         private void UpdateButtonAccess()
         {
             bool canWrite = authService.CurrentUser?.Role != RoleModel.Observer;
-            buttonAdd.Enabled    = canWrite;
-            buttonEdit.Enabled   = canWrite;
+            buttonAdd.Enabled = canWrite;
+            buttonEdit.Enabled = canWrite;
             buttonDelete.Enabled = canWrite;
         }
 
-        // ──────────────────────────────────────────────
-        // ЗАГРУЗКА ТАБЛИЦЫ
-        // ──────────────────────────────────────────────
+        // Загрузка таблицы
 
         /// <summary>
         /// Загружает выбранную таблицу в DataGridView.
@@ -141,6 +137,16 @@ namespace DBViewer
         private void ShowData(DataTable data)
         {
             dataGridView.DataSource = data;
+
+            string[] columnsToHide = { "КодКлиента", "КодЗаказа", "КодЗапчасти", "КодЗаписи", "ID", "RoleID" };
+
+            foreach (string colName in columnsToHide)
+            {
+                if (dataGridView.Columns.Contains(colName))
+                {
+                    dataGridView.Columns[colName].Visible = false;
+                }
+            }
         }
 
         /// <summary>
@@ -158,19 +164,17 @@ namespace DBViewer
             }
 
             if (comboBoxColumn.Items.Count > 0) comboBoxColumn.SelectedIndex = 0;
-            if (comboBoxSort.Items.Count > 0)   comboBoxSort.SelectedIndex   = 0;
+            if (comboBoxSort.Items.Count > 0) comboBoxSort.SelectedIndex = 0;
         }
 
-        // ──────────────────────────────────────────────
-        // ПОИСК И СОРТИРОВКА
-        // ──────────────────────────────────────────────
+        // Поиск и сортировка
 
         private void buttonSearch_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(currentTable)) return;
 
             string column = comboBoxColumn.SelectedItem?.ToString() ?? string.Empty;
-            string text   = textBoxSearch.Text.Trim();
+            string text = textBoxSearch.Text.Trim();
 
             if (string.IsNullOrWhiteSpace(column) || string.IsNullOrWhiteSpace(text))
             {
@@ -205,7 +209,7 @@ namespace DBViewer
                 LoadTable(currentTable);
         }
 
-        private void buttonSortAsc_Click(object sender, EventArgs e)  => ExecuteSort(ascending: true);
+        private void buttonSortAsc_Click(object sender, EventArgs e) => ExecuteSort(ascending: true);
         private void buttonSortDesc_Click(object sender, EventArgs e) => ExecuteSort(ascending: false);
 
         /// <summary>
@@ -229,34 +233,48 @@ namespace DBViewer
             }
         }
 
-        // ──────────────────────────────────────────────
         // CRUD
-        // ──────────────────────────────────────────────
 
         private void buttonAdd_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(currentTable)) return;
 
-            var form = new RowEditForm(currentTable, null, tableService);
-            if (form.ShowDialog() == DialogResult.OK)
-                LoadTable(currentTable);
+            try
+            {
+                var form = new RowEditForm(currentTable, null, tableService);
+                if (form.ShowDialog() == DialogResult.OK)
+                    LoadTable(currentTable);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при добавлении записи: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void buttonEdit_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(currentTable)) return;
 
-            DataRow? row = GetSelectedRow();
-            if (row == null)
+            try
             {
-                MessageBox.Show("Выберите строку для редактирования.", "Редактирование",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
+                DataRow? row = GetSelectedRow();
+                if (row == null)
+                {
+                    MessageBox.Show("Выберите строку для редактирования.", "Редактирование",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
 
-            var form = new RowEditForm(currentTable, row, tableService);
-            if (form.ShowDialog() == DialogResult.OK)
-                LoadTable(currentTable);
+                var form = new RowEditForm(currentTable, row, tableService);
+                if (form.ShowDialog() == DialogResult.OK)
+                    LoadTable(currentTable);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при редактировании записи: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void buttonDelete_Click(object sender, EventArgs e)
@@ -287,7 +305,7 @@ namespace DBViewer
             try
             {
                 string pkColumn = row.Table.Columns[0].ColumnName;
-                object pkValue  = row[pkColumn];
+                object pkValue = row[pkColumn];
                 tableService.RemoveRow(currentTable, pkColumn, pkValue);
                 LoadTable(currentTable);
             }
@@ -297,9 +315,7 @@ namespace DBViewer
             }
         }
 
-        // ──────────────────────────────────────────────
-        // ЭКСПОРТ
-        // ──────────────────────────────────────────────
+        // Экспорт отчета
 
         private void buttonExport_Click(object sender, EventArgs e)
         {
@@ -310,18 +326,18 @@ namespace DBViewer
                 return;
             }
 
-            ExportToCsv(data);
+            ExportToExcel(data);
         }
 
         /// <summary>
         /// Экспортирует текущие данные сетки в CSV-файл.
         /// </summary>
-        private void ExportToCsv(DataTable data)
+        private void ExportToExcel(DataTable data)
         {
             using var dialog = new SaveFileDialog
             {
-                Filter   = "CSV файл (*.csv)|*.csv",
-                FileName = $"{currentTable}_{DateTime.Now:yyyyMMdd_HHmm}.csv"
+                Filter = "Excel книга 97-2003 (*.xls)|*.xls",
+                FileName = $"{currentTable}_{DateTime.Now:yyyyMMdd_HHmm}.xls"
             };
 
             if (dialog.ShowDialog() != DialogResult.OK) return;
@@ -330,23 +346,46 @@ namespace DBViewer
             {
                 var sb = new StringBuilder();
 
-                // Заголовки
-                var headers = new List<string>();
-                foreach (DataColumn col in data.Columns)
-                    headers.Add(col.ColumnName);
-                sb.AppendLine(string.Join(";", headers));
+                sb.AppendLine("<html xmlns:o=\"urn:schemas-microsoft-com:office:office\" xmlns:x=\"urn:schemas-microsoft-com:office:excel\" xmlns=\"http://www.w3.org/TR/REC-html40\">");
+                sb.AppendLine("<head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">");
+                sb.AppendLine("<style>");
+                sb.AppendLine("table { border-collapse: collapse; }");
+                sb.AppendLine("th { background-color: #2c3e50; color: white; font-family: 'Segoe UI', Arial; font-weight: bold; border: 1px solid #bdc3c7; padding: 6px; text-align: center; }");
+                sb.AppendLine("td { font-family: 'Segoe UI', Arial; border: 1px solid #bdc3c7; padding: 6px; text-align: left; mso-number-format:'\\@'; }");
+                sb.AppendLine("</style></head><body><table>");
 
-                // Строки
+                sb.AppendLine("<tr>");
+                var validColumnIndices = new List<int>();
+
+                for (int i = 0; i < data.Columns.Count; i++)
+                {
+                    string colName = data.Columns[i].ColumnName;
+
+                    if (colName.Contains("Код") || colName.Equals("ID", StringComparison.OrdinalIgnoreCase) || colName.EndsWith("ID"))
+                        continue;
+
+                    sb.AppendLine($"<th>{colName}</th>");
+                    validColumnIndices.Add(i);
+                }
+                sb.AppendLine("</tr>");
+
                 foreach (DataRow row in data.Rows)
                 {
-                    var values = new List<string>();
-                    foreach (var item in row.ItemArray)
-                        values.Add(item?.ToString()?.Replace(";", ",") ?? "");
-                    sb.AppendLine(string.Join(";", values));
+                    sb.AppendLine("<tr>");
+                    foreach (int index in validColumnIndices)
+                    {
+                        string val = row[index]?.ToString() ?? "";
+                        sb.AppendLine($"<td>{val}</td>");
+                    }
+                    sb.AppendLine("</tr>");
                 }
 
+                sb.AppendLine("</table></body></html>");
+
                 File.WriteAllText(dialog.FileName, sb.ToString(), Encoding.UTF8);
-                MessageBox.Show("Экспорт выполнен успешно.", "Экспорт", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                MessageBox.Show("Данные успешно экспортированы в Excel с автоподгоном ширины колонок!",
+                    "Экспорт завершен", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
@@ -354,9 +393,7 @@ namespace DBViewer
             }
         }
 
-        // ──────────────────────────────────────────────
-        // ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ
-        // ──────────────────────────────────────────────
+        // Вспомогательные методы
 
         /// <summary>
         /// Возвращает DataRow выделенной строки в сетке, или null если ничего не выбрано.
@@ -373,29 +410,47 @@ namespace DBViewer
 
         private void buttonLogout_Click(object sender, EventArgs e)
         {
-            // Выход из формы базы данных - возврат в главное меню
-            var result = MessageBox.Show(
-                "Выйти в главное меню?",
-                "Выход",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question
-            );
-
-            if (result == DialogResult.Yes)
+            try
             {
-                ReturnToStartMenu();
+                // Выход из формы базы данных - возврат в главное меню
+                var result = MessageBox.Show(
+                    "Выйти в главное меню?",
+                    "Выход",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question
+                );
+
+                if (result == DialogResult.Yes)
+                {
+                    ReturnToStartMenu();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при выходе: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         // Обработчик закрытия формы
         private void MainForm_FormClosing(object? sender, FormClosingEventArgs e)
         {
-            // При закрытии формы (крестик) тоже возвращаем в главное меню
-            // Если пользователь не отменил закрытие
-            if (e.CloseReason == CloseReason.UserClosing)
+            // Отменяем стандартное закрытие крестиком только в том случае,
+            // если пользователь закрывает вручную и главное меню ещё живо в памяти.
+            // Если закрывается всё приложение (Application.Exit), закрываем без отмены.
+            if (e.CloseReason == CloseReason.UserClosing && startMenuForm != null && !startMenuForm.IsDisposed)
             {
                 e.Cancel = true; // Отменяем закрытие
-                ReturnToStartMenu();
+                try
+                {
+                    ReturnToStartMenu();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при закрытии формы: {ex.Message}", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    e.Cancel = false; // Разрешаем закрытие при ошибке
+                }
             }
         }
 
@@ -409,6 +464,42 @@ namespace DBViewer
             {
                 startMenuForm.Show();
                 startMenuForm.WindowState = FormWindowState.Maximized;
+                this.Hide();
+            }
+            else
+            {
+                // Если меню уже нет, закрываем всё приложение целиком
+                Application.Exit();
+            }
+        }
+
+        private void buttonSearchCars_Click(object sender, EventArgs e)
+        {
+            string surname = Microsoft.VisualBasic.Interaction.InputBox("Введите фамилию владельца (или её часть) для поиска автомобилей:", "Поиск автомобилей по фамилии владельца","");
+            if (string.IsNullOrWhiteSpace(surname))
+                return;
+
+            try
+            {
+                DataTable result = tableService.GetCarsByClientSurname(surname);
+                if (result.Rows.Count == 0)
+                {
+                    MessageBox.Show($"Автомобилей для клиентов с фамилией '{surname}' не найдено.", "Результат поиска", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                result.Columns["Фамилия"].ColumnName = "Владелец (Клиент)";
+                result.Columns["НомерАвтомобиля"].ColumnName = "Государственный номер";
+                result.Columns["Марка"].ColumnName = "Марка автомобиля";
+                result.Columns["Цвет"].ColumnName = "Цвет кузова";
+                result.Columns["ГодВыпуска"].ColumnName = "Год выпуска";
+
+                ShowData(result);
+                currentTable = $"Машины_клиента_{surname}";
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show($"Ошибка поиска: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

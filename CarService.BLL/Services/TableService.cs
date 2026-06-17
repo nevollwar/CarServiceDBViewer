@@ -17,7 +17,7 @@ namespace CarService.BLL.Services
 
         public TableService(DataBaseHelper db, AuthService auth)
         {
-            this.db   = db   ?? throw new ArgumentNullException(nameof(db));
+            this.db = db ?? throw new ArgumentNullException(nameof(db));
             this.auth = auth ?? throw new ArgumentNullException(nameof(auth));
         }
 
@@ -115,6 +115,21 @@ namespace CarService.BLL.Services
 
             auth.RequireWrite(tableName);
             db.DeleteRow(tableName, pkColumn, pkValue);
+        }
+
+        /// <summary>
+        /// Получает список автомобилей по фамилии клиента.
+        /// </summary>
+        public DataTable GetCarsByClientSurname(string surname)
+        {
+            if (string.IsNullOrWhiteSpace(surname))
+                throw new ArgumentException("Поисковый запрос не может быть пустым.");
+
+            // Проверяем права доступа к обеим связываемым таблицам
+            auth.RequireRead("Клиенты");
+            auth.RequireRead("Автомобили");
+
+            return db.GetCarsByClientSurname(surname);
         }
     }
 }

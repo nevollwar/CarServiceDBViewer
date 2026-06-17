@@ -34,7 +34,7 @@ namespace DBViewer
             labelUsernameValue.Text = user.Username;
             labelRoleValue.Text = user.Role;
             labelUserIdValue.Text = user.Id.ToString();
-            labelLoginTimeValue.Text = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
+            labelLoginTimeValue.Text = user.LoginTime.ToString("dd.MM.yyyy HH:mm:ss");
             
             // Показываем админ-статус
             labelIsAdminValue.Text = authService.IsAdmin() ? "Да" : "Нет";
@@ -55,11 +55,19 @@ namespace DBViewer
         /// </summary>
         private void buttonChangePassword_Click(object sender, EventArgs e)
         {
-            var changePasswordForm = new ChangePasswordForm(authService);
-            if (changePasswordForm.ShowDialog() == DialogResult.OK)
+            try
             {
-                MessageBox.Show("Пароль успешно изменен!", "Успех", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                var changePasswordForm = new ChangePasswordForm(authService);
+                if (changePasswordForm.ShowDialog() == DialogResult.OK)
+                {
+                    MessageBox.Show("Пароль успешно изменен!", "Успех", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при открытии формы смены пароля: {ex.Message}", "Ошибка", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -80,14 +88,16 @@ namespace DBViewer
             var user = authService.CurrentUser;
             if (user == null) return;
 
+            TimeSpan sessionDuration = DateTime.Now - user.LoginTime;
+            
             MessageBox.Show(
                 "Информация о текущей сессии:\n\n" +
                 $"Имя пользователя: {user.Username}\n" +
                 $"ID пользователя: {user.Id}\n" +
                 $"Роль: {user.Role}\n" +
                 $"Администратор: {(authService.IsAdmin() ? "Да" : "Нет")}\n" +
-                $"Время входа: {DateTime.Now:dd.MM.yyyy HH:mm:ss}\n" +
-                $"Длительность сессии: {DateTime.Now.Subtract(DateTime.Now):hh\\:mm\\:ss}",
+                $"Время входа: {user.LoginTime:dd.MM.yyyy HH:mm:ss}\n" +
+                $"Длительность сессии: {sessionDuration:hh\\:mm\\:ss}",
                 "Информация о сессии",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information

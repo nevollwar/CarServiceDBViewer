@@ -81,7 +81,7 @@ namespace CarService.BLL.Services
 
             DataTable users = db.SearchInTable("Users", "Login", login);
 
-            // Ищем точное совпадение по логину (LIKE может дать лишние результаты)
+            // Ищем точное совпадение по логину
             foreach (DataRow row in users.Rows)
             {
                 string dbLogin = row["Login"]?.ToString() ?? string.Empty;
@@ -89,24 +89,40 @@ namespace CarService.BLL.Services
                     continue;
 
                 string dbPassword = row["Password"]?.ToString() ?? string.Empty;
-                
-                // Временное решение: проверяем пароль в зависимости от флага
-                bool passwordMatches;
-                
-                if (ENABLE_PASSWORD_HASHING)
+
+                bool passwordMatches = false;
+
+                // Проверяем, захеширован ли уже пароль в БД (хэш SHA-256 всегда имеет длину 64 символа)
+                bool isAlreadyHashed = dbPassword.Length == 64 && IsHexString(dbPassword);
+
+                if (isAlreadyHashed)
                 {
+                    // Если в базе уже лежит хэш — сравниваем хэши
                     string hashedPassword = ComputeSha256Hash(password);
                     passwordMatches = dbPassword == hashedPassword;
                 }
                 else
                 {
-                    // Отключено хеширование - проверяем прямой пароль
+                    // Если в базе пока лежит обычный текст (до миграции) — сравниваем напрямую
                     passwordMatches = dbPassword == password;
+
+                    // Если пароль совпал, тут же хешируем его на лету
+                    if (passwordMatches)
+                    {
+                        try
+                        {
+                            string newHash = ComputeSha256Hash(password);
+                            db.UpdateRow("Users", new Dictionary<string, object> { { "Password", newHash } }, "ID", row["ID"]);
+                        }
+                        catch
+                        {
+                            // Игнорируем возможные ошибки автозаписи, чтобы не мешать входу пользователя
+                        }
+                    }
                 }
 
                 if (!passwordMatches)
                 {
-                    // Неверный пароль - увеличиваем счетчик попыток
                     lock (lockObject)
                     {
                         RecordFailedAttempt(login);
@@ -129,13 +145,13 @@ namespace CarService.BLL.Services
                 {
                     Id = Convert.ToInt32(row["ID"]),
                     Username = dbLogin,
-                    Role = roleName
+                    Role = roleName,
+                    LoginTime = DateTime.Now
                 };
 
                 return true;
             }
 
-            // Пользователь не найден - также увеличиваем счетчик попыток
             lock (lockObject)
             {
                 RecordFailedAttempt(login);
@@ -205,10 +221,10 @@ namespace CarService.BLL.Services
             
             // Проверяем разные варианты написания администратора
             string roleLower = role.ToLower();
-            return role == RoleModel.Admin ||           // "Администратор" с большой А
-                   roleLower == "администратор" ||      // "администратор" с маленькой а
-                   roleLower == "admin" ||              // "admin" английский вариант
-                   roleLower == "админ";                // "админ" сокращённый вариант
+            return role == RoleModel.Admin || // "Администратор" с большой А
+                   roleLower == "администратор" || // "администратор" с маленькой а
+                   roleLower == "admin" || // "admin" английский вариант
+                   roleLower == "админ"; // "админ" сокращённый вариант
         }
 
         /// <summary>
@@ -230,6 +246,22 @@ namespace CarService.BLL.Services
         }
 
         // Вспомогательные методы
+
+        /// <summary>
+        /// Проверяет, состоит ли строка только из шестнадцатеричных символов (0-9, A-F).
+        /// Используется для косвенного определения того, является ли строка SHA-256 хешем.
+        /// </summary>
+        /// <param name="str">Проверяемая текстовая строка.</param>
+        /// <returns>True, если строка является шестнадцатеричной; иначе — false.</returns>
+        private bool IsHexString(string str)
+        {
+            foreach (char c in str)
+            {
+                if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')))
+                    return false;
+            }
+            return true;
+        }
 
         /// <summary>
         /// Проверяет, является ли таблица защищённой (Users, Roles).
@@ -344,17 +376,6 @@ namespace CarService.BLL.Services
             }
 
             return hasDigit && hasLower && hasUpper;
-        }
-
-        /// <summary>
-        /// Обновляет пароль пользователя на хешированный (временная реализация).
-        /// </summary>
-        private void UpdatePasswordToHashed(int userId, string hashedPassword)
-        {
-            // Временно отключаем автоматическое обновление паролей
-            // чтобы не усложнять логику
-            // Для миграции паролей используйте PasswordMigrationTool
-            return;
         }
     }
 }

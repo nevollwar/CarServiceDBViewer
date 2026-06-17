@@ -9,7 +9,7 @@ namespace DBViewer
         public static string GetPath()
         {
             string folder = AppDomain.CurrentDomain.BaseDirectory;
-            string path   = Path.Combine(folder, "AutoService.accdb");
+            string path = Path.Combine(folder, "AutoService.accdb");
 
             if (!File.Exists(path))
                 throw new FileNotFoundException($"Файл базы данных не найден: {path}");

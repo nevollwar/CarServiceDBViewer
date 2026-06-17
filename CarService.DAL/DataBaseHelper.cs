@@ -39,8 +39,8 @@ namespace CarService.DAL
             if (string.IsNullOrWhiteSpace(tableName))
                 throw new ArgumentException("Имя таблицы не может быть пустым.");
 
-            // Разрешены: латиница, кириллица, цифры, подчёркивание, пробел
-            if (!Regex.IsMatch(tableName, @"^[\w\u0400-\u04FF\s]+$"))
+            // Разрешены: латиница, кириллица, цифры, подчёркивание, пробел и дефис
+            if (!Regex.IsMatch(tableName, @"^[\w\u0400-\u04FF\s\-]+$"))
                 throw new ArgumentException($"Недопустимое имя таблицы: '{tableName}'.");
         }
 
@@ -280,6 +280,26 @@ namespace CarService.DAL
             {
                 throw WrapDbException(ex, context);
             }
+        }
+
+        /// <summary>
+        /// Ищет все автомобили клиентов по части фамилии владельца.
+        /// Демонстрирует использование INNER JOIN и параметризованного поиска.
+        /// </summary>
+        public DataTable GetCarsByClientSurname(string surname)
+        {
+            string query = @"
+            SELECT c.Фамилия, a.НомерАвтомобиля, a.Марка, a.Цвет, a.ГодВыпуска
+            FROM [Клиенты] c
+            INNER JOIN [Автомобили] a ON c.КодКлиента = a.КодКлиента
+            WHERE c.Фамилия LIKE ?";
+
+                var parameters = new List<OleDbParameter>
+                {
+                    new OleDbParameter("@surname", $"%{surname}%")
+                };
+
+            return ExecuteQuery(query, parameters, "GetCarsByClientSurname");
         }
     }
 }

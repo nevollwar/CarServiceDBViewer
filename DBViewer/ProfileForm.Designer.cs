@@ -95,7 +95,7 @@ namespace DBViewer
             // 
             // buttonSessionInfo
             // 
-            buttonSessionInfo.BackColor = Color.FromArgb(155, 89, 182);
+            buttonSessionInfo.BackColor = Color.FromArgb(41, 128, 185);
             buttonSessionInfo.FlatAppearance.BorderSize = 0;
             buttonSessionInfo.FlatStyle = FlatStyle.Flat;
             buttonSessionInfo.Font = new Font("Segoe UI", 12F, FontStyle.Bold);

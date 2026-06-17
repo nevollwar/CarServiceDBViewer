@@ -12,7 +12,7 @@ namespace DBViewer
 
             try
             {
-                var db          = new DataBaseHelper(DbPathHelper.GetPath());
+                var db = new DataBaseHelper(DbPathHelper.GetPath());
                 var authService = new AuthService(db);
 
                 Application.Run(new LoginForm(authService));

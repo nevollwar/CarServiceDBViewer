@@ -48,9 +48,9 @@ namespace DBViewer
             // Используем метод IsAdmin() из AuthService для проверки роли
             // Он проверяет разные варианты написания администратора (с учётом регистра)
             bool isAdmin = authService.IsAdmin();
-            
+
             buttonAdminTools.Visible = isAdmin;
-            
+
             // Обновляем отображение роли (на всякий случай)
             labelRole.Text = $"Роль: {user.Role}";
         }
@@ -68,34 +68,53 @@ namespace DBViewer
             labelWelcome.Text = $"Добро пожаловать, {user.Username}!";
             labelRole.Text = $"Роль: {user.Role}";
         }
-        
-
 
         // Обработчики кнопок
 
         private void buttonDatabase_Click(object sender, EventArgs e)
         {
-            // Открыть форму просмотра базы данных
-            var mainForm = new MainForm(authService, this);
-            mainForm.Show();
-            this.Hide(); // Скрыть меню
+            try
+            {
+                // Открыть форму просмотра базы данных
+                var mainForm = new MainForm(authService, this);
+                mainForm.Show();
+                this.Hide(); // Скрыть меню
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при открытии базы данных: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void buttonProfile_Click(object sender, EventArgs e)
         {
-            // Создаем новую форму личного кабинета
-            var profileForm = new ProfileForm(authService);
-            profileForm.ShowDialog();
+            try
+            {
+                // Создаем новую форму личного кабинета
+                var profileForm = new ProfileForm(authService);
+                profileForm.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при открытии личного кабинета: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void buttonAbout_Click(object sender, EventArgs e)
         {
             MessageBox.Show(
-                "Автосервис — Система управления\n\n" +
-                "Версия 1.0\n" +
-                "Система управления базой данных автосервиса\n" +
-                "Разработано для учебных целей\n" +
-                "© 2025",
+                "Программа «Автосервис» — Система управления\n" +
+                "Версия 1.0\n\n" +
+                "Программа представляет собой удобное и надежное решение для автоматизации работы станций технического обслуживания (СТО), автосервисов и ремонтных мастерских.\n\n" +
+                "Основные возможности приложения:\n" +
+                "• Ведение базы клиентов и детальной картотеки их автомобилей;\n" +
+                "• Оформление заказ-нарядов на ремонт и ведение истории обслуживания;\n" +
+                "• Учет используемых при ремонте запасных частей и контроль их наличия на складе;\n" +
+                "• Управление рабочими бригадами и учет стоимости их работы;\n" +
+                "• Быстрый поиск нужной информации и выгрузка отчетов в таблицы Excel.\n\n" +
+                "Приложение создано для того, чтобы упростить ежедневную рутину сотрудников, повысить скорость обслуживания клиентов и сделать учет в автосервисе простым и прозрачным.",
                 "О программе",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information
@@ -123,15 +142,23 @@ namespace DBViewer
         /// </summary>
         private void buttonAdminTools_Click(object sender, EventArgs e)
         {
-            if (!authService.IsAdmin())
+            try
             {
-                MessageBox.Show("Доступ запрещен. Требуются права администратора.",
-                    "Ошибка доступа", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+                if (!authService.IsAdmin())
+                {
+                    MessageBox.Show("Доступ запрещен. Требуются права администратора.",
+                        "Ошибка доступа", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
-            var migrationTool = new PasswordMigrationTool();
-            migrationTool.ShowDialog();
+                var migrationTool = new PasswordMigrationTool();
+                migrationTool.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при открытии админ-инструментов: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         // Обработка закрытия формы
@@ -139,24 +166,58 @@ namespace DBViewer
         {
             if (e.CloseReason == CloseReason.UserClosing)
             {
-                var result = MessageBox.Show(
-                    "Вы уверены, что хотите выйти из приложения?",
-                    "Выход",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question
-                );
+                try
+                {
+                    var result = MessageBox.Show(
+                        "Вы уверены, что хотите выйти из приложения?",
+                        "Выход",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question
+                    );
 
-                if (result == DialogResult.Yes)
-                {
-                    authService.Logout();
+                    if (result == DialogResult.Yes)
+                    {
+                        authService.Logout();
+                    }
+                    else
+                    {
+                        e.Cancel = true;
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    e.Cancel = true;
+                    MessageBox.Show($"Ошибка при закрытии формы: {ex.Message}", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
+        private void buttonLogout_Click(object sender, EventArgs e)
+        {
+            authService.Logout();
 
+            LoginForm? loginForm = null;
+            foreach (Form f in Application.OpenForms)
+            {
+                if (f is LoginForm)
+                {
+                    loginForm = (LoginForm)f;
+                    break;
+                }
+            }
+
+            if (loginForm != null)
+            {
+                loginForm.ResetFields(); 
+                loginForm.Show();       
+            }
+            else
+            {
+                var newLogin = new LoginForm(authService);
+                newLogin.Show();
+            }
+
+            this.Close();
+        }
     }
 }

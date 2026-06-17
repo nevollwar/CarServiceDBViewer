@@ -5,8 +5,8 @@ namespace CarService.BLL.Models
     /// </summary>
     public static class RoleModel
     {
-        public const string Admin    = "Администратор";
-        public const string Editor   = "Редактор";
+        public const string Admin = "Администратор";
+        public const string Editor = "Редактор";
         public const string Observer = "Наблюдатель";
     }
 }

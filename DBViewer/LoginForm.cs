@@ -130,5 +130,16 @@ namespace DBViewer
         {
             CenterForm();
         }
+
+        /// <summary>
+        /// Очищает поля ввода логина и пароля при возврате из главного меню.
+        /// </summary>
+        public void ResetFields()
+        {
+            textBoxLogin.Clear();
+            textBoxPassword.Clear();
+            labelError.Text = "";
+            textBoxLogin.Focus(); // ставит фокус на поле логина
+        }
     }
 }

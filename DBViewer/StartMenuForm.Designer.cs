@@ -24,6 +24,7 @@ namespace DBViewer
             buttonProfile = new Button();
             buttonDatabase = new Button();
             labelTitle = new Label();
+            buttonLogout = new Button();
             panelHeader.SuspendLayout();
             panelCenter.SuspendLayout();
             panelButtons.SuspendLayout();
@@ -80,6 +81,7 @@ namespace DBViewer
             // 
             panelButtons.Anchor = AnchorStyles.Top | AnchorStyles.Bottom;
             panelButtons.BackColor = Color.Transparent;
+            panelButtons.Controls.Add(buttonLogout);
             panelButtons.Controls.Add(buttonAdminTools);
             panelButtons.Controls.Add(buttonExit);
             panelButtons.Controls.Add(buttonAbout);
@@ -88,18 +90,18 @@ namespace DBViewer
             panelButtons.Location = new Point(229, 133);
             panelButtons.Margin = new Padding(3, 4, 3, 4);
             panelButtons.Name = "panelButtons";
-            panelButtons.Size = new Size(686, 533);
+            panelButtons.Size = new Size(688, 610);
             panelButtons.TabIndex = 1;
             // 
             // buttonAdminTools
             // 
             buttonAdminTools.Anchor = AnchorStyles.None;
-            buttonAdminTools.BackColor = Color.FromArgb(44, 62, 80);
+            buttonAdminTools.BackColor = Color.FromArgb(41, 128, 185);
             buttonAdminTools.FlatAppearance.BorderSize = 0;
             buttonAdminTools.FlatStyle = FlatStyle.Flat;
             buttonAdminTools.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             buttonAdminTools.ForeColor = Color.White;
-            buttonAdminTools.Location = new Point(171, 320);
+            buttonAdminTools.Location = new Point(172, 301);
             buttonAdminTools.Margin = new Padding(3, 4, 3, 4);
             buttonAdminTools.Name = "buttonAdminTools";
             buttonAdminTools.Size = new Size(343, 67);
@@ -117,7 +119,7 @@ namespace DBViewer
             buttonExit.FlatStyle = FlatStyle.Flat;
             buttonExit.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             buttonExit.ForeColor = Color.White;
-            buttonExit.Location = new Point(171, 427);
+            buttonExit.Location = new Point(172, 487);
             buttonExit.Margin = new Padding(3, 4, 3, 4);
             buttonExit.Name = "buttonExit";
             buttonExit.Size = new Size(343, 67);
@@ -129,12 +131,12 @@ namespace DBViewer
             // buttonAbout
             // 
             buttonAbout.Anchor = AnchorStyles.None;
-            buttonAbout.BackColor = Color.FromArgb(149, 165, 166);
+            buttonAbout.BackColor = Color.FromArgb(41, 128, 185);
             buttonAbout.FlatAppearance.BorderSize = 0;
             buttonAbout.FlatStyle = FlatStyle.Flat;
             buttonAbout.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             buttonAbout.ForeColor = Color.White;
-            buttonAbout.Location = new Point(171, 213);
+            buttonAbout.Location = new Point(172, 211);
             buttonAbout.Margin = new Padding(3, 4, 3, 4);
             buttonAbout.Name = "buttonAbout";
             buttonAbout.Size = new Size(343, 67);
@@ -146,12 +148,12 @@ namespace DBViewer
             // buttonProfile
             // 
             buttonProfile.Anchor = AnchorStyles.None;
-            buttonProfile.BackColor = Color.FromArgb(155, 89, 182);
+            buttonProfile.BackColor = Color.FromArgb(41, 128, 185);
             buttonProfile.FlatAppearance.BorderSize = 0;
             buttonProfile.FlatStyle = FlatStyle.Flat;
             buttonProfile.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             buttonProfile.ForeColor = Color.White;
-            buttonProfile.Location = new Point(171, 107);
+            buttonProfile.Location = new Point(172, 118);
             buttonProfile.Margin = new Padding(3, 4, 3, 4);
             buttonProfile.Name = "buttonProfile";
             buttonProfile.Size = new Size(343, 67);
@@ -168,7 +170,7 @@ namespace DBViewer
             buttonDatabase.FlatStyle = FlatStyle.Flat;
             buttonDatabase.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
             buttonDatabase.ForeColor = Color.White;
-            buttonDatabase.Location = new Point(171, 0);
+            buttonDatabase.Location = new Point(172, 20);
             buttonDatabase.Margin = new Padding(3, 4, 3, 4);
             buttonDatabase.Name = "buttonDatabase";
             buttonDatabase.Size = new Size(343, 73);
@@ -188,6 +190,23 @@ namespace DBViewer
             labelTitle.TabIndex = 0;
             labelTitle.Text = "Главное меню";
             labelTitle.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // buttonLogout
+            // 
+            buttonLogout.Anchor = AnchorStyles.None;
+            buttonLogout.BackColor = Color.FromArgb(41, 128, 185);
+            buttonLogout.FlatAppearance.BorderSize = 0;
+            buttonLogout.FlatStyle = FlatStyle.Flat;
+            buttonLogout.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            buttonLogout.ForeColor = Color.White;
+            buttonLogout.Location = new Point(172, 395);
+            buttonLogout.Margin = new Padding(3, 4, 3, 4);
+            buttonLogout.Name = "buttonLogout";
+            buttonLogout.Size = new Size(343, 67);
+            buttonLogout.TabIndex = 5;
+            buttonLogout.Text = "Выйти из аккаунта";
+            buttonLogout.UseVisualStyleBackColor = false;
+            buttonLogout.Click += buttonLogout_Click;
             // 
             // StartMenuForm
             // 
@@ -222,5 +241,6 @@ namespace DBViewer
         private System.Windows.Forms.Button buttonAbout;
         private System.Windows.Forms.Button buttonExit;
         private System.Windows.Forms.Button buttonAdminTools;
+        private Button buttonLogout;
     }
 }

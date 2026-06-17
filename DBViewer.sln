@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36429.23 d17.14
+VisualStudioVersion = 17.14.36429.23
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarCervice.UI", "DBViewer\CarCervice.UI.csproj", "{71209A25-CFE5-421A-BC62-B8BCF45324E3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarService.DAL", "CarService.DAL\CarService.DAL.csproj", "{77F79A37-06CB-49BF-89C1-6916DE6058F6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarService.BLL", "CarService.BLL\CarService.BLL.csproj", "{D9969013-9C89-4076-A666-AC46E6D25E48}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarService.Tests", "CarService.Tests\CarService.Tests.csproj", "{CEA0BCAF-E307-4DEE-9B9A-8B1EFD78CAB0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{D9969013-9C89-4076-A666-AC46E6D25E48}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9969013-9C89-4076-A666-AC46E6D25E48}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D9969013-9C89-4076-A666-AC46E6D25E48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEA0BCAF-E307-4DEE-9B9A-8B1EFD78CAB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEA0BCAF-E307-4DEE-9B9A-8B1EFD78CAB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEA0BCAF-E307-4DEE-9B9A-8B1EFD78CAB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEA0BCAF-E307-4DEE-9B9A-8B1EFD78CAB0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

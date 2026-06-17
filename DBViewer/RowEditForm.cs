@@ -10,8 +10,8 @@ namespace DBViewer
     /// </summary>
     public class RowEditForm : Form
     {
-        private readonly string       tableName;
-        private readonly DataRow?     existingRow;
+        private readonly string tableName;
+        private readonly DataRow? existingRow;
         private readonly TableService tableService;
 
         // Словарь: имя столбца → текстовое поле ввода
@@ -22,8 +22,8 @@ namespace DBViewer
 
         public RowEditForm(string tableName, DataRow? existingRow, TableService tableService)
         {
-            this.tableName    = tableName;
-            this.existingRow  = existingRow;
+            this.tableName = tableName;
+            this.existingRow = existingRow;
             this.tableService = tableService ?? throw new ArgumentNullException(nameof(tableService));
 
             BuildForm();
@@ -34,14 +34,14 @@ namespace DBViewer
         /// </summary>
         private void BuildForm()
         {
-            Text            = existingRow == null ? $"Добавить запись — {tableName}" : $"Редактировать — {tableName}";
+            Text = existingRow == null ? $"Добавить запись — {tableName}" : $"Редактировать — {tableName}";
             FormBorderStyle = FormBorderStyle.FixedDialog;
-            MaximizeBox     = false;
-            StartPosition   = FormStartPosition.CenterParent;
-            AutoScroll      = true;
+            MaximizeBox = false;
+            StartPosition = FormStartPosition.CenterParent;
+            AutoScroll = true;
 
             var columns = GetColumns();
-            int y       = 15;
+            int y = 15;
 
             foreach (string col in columns)
             {
@@ -49,16 +49,16 @@ namespace DBViewer
 
                 var label = new Label
                 {
-                    Text     = col + (isPk ? " (ключ)" : "") + ":",
+                    Text = col + (isPk ? " (ключ)" : "") + ":",
                     Location = new Point(15, y),
                     AutoSize = true
                 };
 
                 var textBox = new TextBox
                 {
-                    Location  = new Point(170, y - 3),
-                    Size      = new Size(220, 23),
-                    ReadOnly  = isPk && existingRow != null, // ключ нельзя менять при редактировании
+                    Location = new Point(170, y - 3),
+                    Size = new Size(220, 23),
+                    ReadOnly = isPk && existingRow != null, // ключ нельзя менять при редактировании
                     BackColor = isPk && existingRow != null ? Color.WhiteSmoke : Color.White
                 };
 
@@ -75,18 +75,18 @@ namespace DBViewer
             // Кнопки
             var buttonOk = new Button
             {
-                Text     = "Сохранить",
+                Text = "Сохранить",
                 Location = new Point(100, y + 10),
-                Size     = new Size(100, 30),
+                Size = new Size(100, 30),
                 DialogResult = DialogResult.None
             };
             buttonOk.Click += buttonOk_Click;
 
             var buttonCancel = new Button
             {
-                Text         = "Отмена",
-                Location     = new Point(215, y + 10),
-                Size         = new Size(100, 30),
+                Text = "Отмена",
+                Location = new Point(215, y + 10),
+                Size = new Size(100, 30),
                 DialogResult = DialogResult.Cancel
             };
 

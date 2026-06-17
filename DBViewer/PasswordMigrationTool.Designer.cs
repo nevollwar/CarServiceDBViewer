@@ -20,70 +20,127 @@ namespace DBViewer
             buttonCreateUser = new Button();
             labelInfo = new Label();
             buttonClose = new Button();
-
+            buttonDeleteUser = new Button();
+            buttonResetPassword = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridViewUsers).BeginInit();
             SuspendLayout();
-
+            // 
             // dataGridViewUsers
+            // 
             dataGridViewUsers.AllowUserToAddRows = false;
             dataGridViewUsers.AllowUserToDeleteRows = false;
-            dataGridViewUsers.ReadOnly = true;
-            dataGridViewUsers.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridViewUsers.ColumnHeadersHeight = 29;
             dataGridViewUsers.Dock = DockStyle.Top;
-            dataGridViewUsers.Height = 300;
-
-            // labelInfo
-            labelInfo.Text = "Утилита миграции паролей на SHA-256\n" +
-                            "Перед использованием сделайте резервную копию базы данных!\n" +
-                            "Хеши SHA-256 имеют длину 64 символа (шестнадцатеричные).";
-            labelInfo.Dock = DockStyle.Top;
-            labelInfo.Height = 60;
-            labelInfo.Padding = new Padding(10);
-            labelInfo.BackColor = Color.LightYellow;
-            labelInfo.ForeColor = Color.DarkRed;
-            labelInfo.TextAlign = ContentAlignment.MiddleLeft;
-
+            dataGridViewUsers.Location = new Point(0, 60);
+            dataGridViewUsers.Name = "dataGridViewUsers";
+            dataGridViewUsers.ReadOnly = true;
+            dataGridViewUsers.RowHeadersWidth = 51;
+            dataGridViewUsers.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridViewUsers.Size = new Size(944, 300);
+            dataGridViewUsers.TabIndex = 5;
+            // 
             // labelStatus
-            labelStatus.Text = "Загрузка...";
+            // 
             labelStatus.Dock = DockStyle.Top;
-            labelStatus.Height = 25;
+            labelStatus.Location = new Point(0, 360);
+            labelStatus.Name = "labelStatus";
             labelStatus.Padding = new Padding(10, 5, 10, 5);
-
+            labelStatus.Size = new Size(944, 37);
+            labelStatus.TabIndex = 4;
+            labelStatus.Text = "Загрузка...";
+            // 
             // buttonMigrateAll
-            buttonMigrateAll.Text = "Мигрировать все пароли";
-            buttonMigrateAll.Size = new Size(180, 40);
-            buttonMigrateAll.Location = new Point(20, 400);
-            buttonMigrateAll.Click += new EventHandler(buttonMigrateAll_Click);
-            buttonMigrateAll.BackColor = Color.OrangeRed;
-            buttonMigrateAll.ForeColor = Color.White;
+            // 
+            buttonMigrateAll.BackColor = Color.FromArgb(41, 128, 185);
             buttonMigrateAll.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-
+            buttonMigrateAll.ForeColor = Color.White;
+            buttonMigrateAll.Location = new Point(162, 400);
+            buttonMigrateAll.Name = "buttonMigrateAll";
+            buttonMigrateAll.Size = new Size(279, 40);
+            buttonMigrateAll.TabIndex = 3;
+            buttonMigrateAll.Text = "Мигрировать все пароли";
+            buttonMigrateAll.UseVisualStyleBackColor = false;
+            buttonMigrateAll.Click += buttonMigrateAll_Click;
+            // 
             // buttonMigrateSelected
-            buttonMigrateSelected.Text = "Мигрировать выбранного";
-            buttonMigrateSelected.Size = new Size(180, 40);
-            buttonMigrateSelected.Location = new Point(220, 400);
-            buttonMigrateSelected.Click += new EventHandler(buttonMigrateSelected_Click);
-            buttonMigrateSelected.BackColor = Color.SteelBlue;
-            buttonMigrateSelected.ForeColor = Color.White;
+            // 
+            buttonMigrateSelected.BackColor = Color.FromArgb(41, 128, 185);
             buttonMigrateSelected.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-
+            buttonMigrateSelected.ForeColor = Color.White;
+            buttonMigrateSelected.Location = new Point(162, 446);
+            buttonMigrateSelected.Name = "buttonMigrateSelected";
+            buttonMigrateSelected.Size = new Size(279, 40);
+            buttonMigrateSelected.TabIndex = 2;
+            buttonMigrateSelected.Text = "Мигрировать выбранного";
+            buttonMigrateSelected.UseVisualStyleBackColor = false;
+            buttonMigrateSelected.Click += buttonMigrateSelected_Click;
+            // 
             // buttonCreateUser
-            buttonCreateUser.Text = "Создать пользователя";
-            buttonCreateUser.Size = new Size(180, 40);
-            buttonCreateUser.Location = new Point(420, 400);
-            buttonCreateUser.Click += new EventHandler(buttonCreateUser_Click);
+            // 
             buttonCreateUser.BackColor = Color.ForestGreen;
-            buttonCreateUser.ForeColor = Color.White;
             buttonCreateUser.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-
+            buttonCreateUser.ForeColor = Color.White;
+            buttonCreateUser.Location = new Point(162, 492);
+            buttonCreateUser.Name = "buttonCreateUser";
+            buttonCreateUser.Size = new Size(279, 40);
+            buttonCreateUser.TabIndex = 1;
+            buttonCreateUser.Text = "Создать пользователя";
+            buttonCreateUser.UseVisualStyleBackColor = false;
+            buttonCreateUser.Click += buttonCreateUser_Click;
+            // 
+            // labelInfo
+            // 
+            labelInfo.BackColor = Color.LightYellow;
+            labelInfo.Dock = DockStyle.Top;
+            labelInfo.ForeColor = Color.DarkRed;
+            labelInfo.Location = new Point(0, 0);
+            labelInfo.Name = "labelInfo";
+            labelInfo.Padding = new Padding(10);
+            labelInfo.Size = new Size(944, 60);
+            labelInfo.TabIndex = 6;
+            labelInfo.Text = "Консоль управления учетными записями и безопасностью\r\nВнимание! Перед проведением операций сделайте резервную копию БД.";
+            labelInfo.TextAlign = ContentAlignment.MiddleLeft;
+            // 
             // buttonClose
+            // 
+            buttonClose.Location = new Point(546, 492);
+            buttonClose.Name = "buttonClose";
+            buttonClose.Size = new Size(206, 40);
+            buttonClose.TabIndex = 0;
             buttonClose.Text = "Закрыть";
-            buttonClose.Size = new Size(100, 35);
-            buttonClose.Location = new Point(620, 400);
-            buttonClose.Click += (s, e) => Close();
-
+            buttonClose.Click += buttonClose_Click;
+            // 
+            // buttonDeleteUser
+            // 
+            buttonDeleteUser.BackColor = Color.Crimson;
+            buttonDeleteUser.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            buttonDeleteUser.ForeColor = Color.White;
+            buttonDeleteUser.Location = new Point(546, 400);
+            buttonDeleteUser.Name = "buttonDeleteUser";
+            buttonDeleteUser.Size = new Size(206, 40);
+            buttonDeleteUser.TabIndex = 7;
+            buttonDeleteUser.Text = "Удалить пользователя";
+            buttonDeleteUser.UseVisualStyleBackColor = false;
+            buttonDeleteUser.Click += buttonDeleteUser_Click;
+            // 
+            // buttonResetPassword
+            // 
+            buttonResetPassword.BackColor = Color.FromArgb(41, 128, 185);
+            buttonResetPassword.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            buttonResetPassword.ForeColor = Color.White;
+            buttonResetPassword.Location = new Point(546, 446);
+            buttonResetPassword.Name = "buttonResetPassword";
+            buttonResetPassword.Size = new Size(206, 40);
+            buttonResetPassword.TabIndex = 8;
+            buttonResetPassword.Text = "Изменить пароль";
+            buttonResetPassword.UseVisualStyleBackColor = false;
+            buttonResetPassword.Click += buttonResetPassword_Click;
+            // 
             // PasswordMigrationTool
-            ClientSize = new Size(800, 450);
+            // 
+            ClientSize = new Size(944, 544);
+            Controls.Add(buttonResetPassword);
+            Controls.Add(buttonDeleteUser);
             Controls.Add(buttonClose);
             Controls.Add(buttonCreateUser);
             Controls.Add(buttonMigrateSelected);
@@ -91,9 +148,9 @@ namespace DBViewer
             Controls.Add(labelStatus);
             Controls.Add(dataGridViewUsers);
             Controls.Add(labelInfo);
+            Name = "PasswordMigrationTool";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Миграция паролей на SHA-256";
-
+            Text = "Администрирование учетных записей";
             ((System.ComponentModel.ISupportInitialize)dataGridViewUsers).EndInit();
             ResumeLayout(false);
         }
@@ -105,5 +162,7 @@ namespace DBViewer
         private Button buttonCreateUser;
         private Label labelInfo;
         private Button buttonClose;
+        private Button buttonDeleteUser;
+        private Button buttonResetPassword;
     }
 }
